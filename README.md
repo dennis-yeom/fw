@@ -14,3 +14,5 @@ Use redis to store filenames and their hashes to see if hash has changed. If the
 
 <img width="477" alt="image" src="https://github.com/user-attachments/assets/1eb0cb22-b59e-4cee-b0bd-9a4a5bb332c2">
 
+### creating module and running Go program
+<img width="425" alt="image" src="https://github.com/user-attachments/assets/18e1e445-e1b0-4a22-b7dd-d6ddb63a8a70">
