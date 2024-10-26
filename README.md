@@ -12,4 +12,5 @@ REmote DIctionary Server (redis).
 
 Use redis to store filenames and their hashes to see if hash has changed. If the hash of the file has changed, indicating there was a change, we tell the file watcher to publish a message to a topic using Google Cloud Console. This message can be later used by a subcriber who is listening on the topic and another program will take over from there to download the changed files.
 
+<img width="477" alt="image" src="https://github.com/user-attachments/assets/1eb0cb22-b59e-4cee-b0bd-9a4a5bb332c2">
 
