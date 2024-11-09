@@ -1,0 +1,4 @@
+s3:  
+  bucket: "pcw-test"  
+  region: "us-east-1"
+  endpoint: "https://us-east-1.linodeobjects.com"
