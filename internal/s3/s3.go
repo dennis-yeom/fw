@@ -9,6 +9,12 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
+type S3 interface {
+	ListFiles(ctx context.Context) error
+	GetObjectVersion(ctx context.Context, key string)
+	GetAllObjectVersions(ctx context.Context)
+}
+
 // S3Client encapsulates the S3 client and bucket configuration
 type S3Client struct {
 	client *s3.Client
@@ -53,4 +59,49 @@ func (s *S3Client) ListFiles(ctx context.Context) error {
 		fmt.Printf(" - %s (size: %d)\n", *item.Key, item.Size)
 	}
 	return nil
+}
+
+// GetObjectVersion retrieves the metadata of an object and returns its version ID
+func (s *S3Client) GetObjectVersion(ctx context.Context, key string) (string, error) {
+	input := &s3.HeadObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(key),
+	}
+
+	result, err := s.client.HeadObject(ctx, input)
+	if err != nil {
+		return "", fmt.Errorf("failed to get object metadata: %w", err)
+	}
+
+	versionID := aws.ToString(result.VersionId)
+	fmt.Printf("File %s in bucket %s has version ID: %s\n", key, s.bucket, versionID)
+	return versionID, nil
+}
+
+// ObjectInfo holds the key (filename) and version ID of an object
+type ObjectInfo struct {
+	Key       string
+	VersionID string
+}
+
+// GetAllObjectVersions retrieves the filename and version ID for all versions of objects in the Linode S3-compatible bucket
+func (s *S3Client) GetAllObjectVersions(ctx context.Context) ([]ObjectInfo, error) {
+	input := &s3.ListObjectVersionsInput{
+		Bucket: aws.String(s.bucket),
+	}
+
+	result, err := s.client.ListObjectVersions(ctx, input)
+	if err != nil {
+		return nil, fmt.Errorf("failed to list object versions: %w", err)
+	}
+
+	var objects []ObjectInfo
+	for _, version := range result.Versions {
+		objects = append(objects, ObjectInfo{
+			Key:       *version.Key,
+			VersionID: aws.ToString(version.VersionId), // Includes version ID directly
+		})
+	}
+
+	return objects, nil
 }
