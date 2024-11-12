@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/dennis-yeom/fw/internal/demo"
+	"github.com/dennis-yeom/fw/internal/s3"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -20,10 +20,10 @@ var (
 		},
 	}
 
-	// SetCmd sets a key and value in Redis
+	// lists all files and their versions
 	ListCmd = &cobra.Command{
 		Use:   "list",
-		Short: "lists contents in buckets",
+		Short: "lists contents and versions in buckets",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// Get the bucket name and endpoint from configuration
 			bucket := viper.GetString("s3.bucket")
@@ -33,15 +33,22 @@ var (
 				return fmt.Errorf("bucket and endpoint must be set in the config file")
 			}
 
-			// Initialize the Demo instance with the S3 client using the bucket and endpoint
-			demoInstance, err := demo.New(demo.WithS3Client(bucket))
+			// Initialize the S3 client with the bucket and endpoint
+			s3Client, err := s3.NewS3Client(context.TODO(), bucket, endpoint)
 			if err != nil {
-				return fmt.Errorf("failed to initialize demo instance: %v", err)
+				return fmt.Errorf("failed to initialize S3 client: %v", err)
 			}
 
-			// List files in the bucket
-			if err := demoInstance.S3Client.ListFiles(context.TODO()); err != nil {
-				return fmt.Errorf("failed to list files: %v", err)
+			// Retrieve and display all object versions in the bucket
+			objects, err := s3Client.GetAllObjectVersions(context.TODO())
+			if err != nil {
+				return fmt.Errorf("failed to list object versions: %v", err)
+			}
+
+			// Display each object and its versions
+			fmt.Println("Objects and their versions in bucket:", bucket)
+			for _, obj := range objects {
+				fmt.Printf(" - %s (version: %s)\n", obj.Key, obj.VersionID)
 			}
 
 			return nil
