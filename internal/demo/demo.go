@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/dennis-yeom/fw/internal/s3"
-	"github.com/spf13/viper"
 )
 
 // Demo struct will hold a pointer to an S3 client
@@ -27,10 +26,8 @@ func New(opts ...DemoOption) (*Demo, error) {
 }
 
 // WithS3Client configures the Demo instance with an S3 client for the given bucket and endpoint
-func WithS3Client(bucket string) DemoOption {
+func WithS3Client(bucket string, endpoint string) DemoOption {
 	return func(d *Demo) error {
-		// Retrieve the endpoint from configuration
-		endpoint := viper.GetString("s3.endpoint")
 		if endpoint == "" {
 			return fmt.Errorf("endpoint must be set in the config file")
 		}

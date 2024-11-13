@@ -24,6 +24,12 @@ go run main.go -h
 ## enabling versioning in linode bucket
 dont forget to export your linode access, secret keys
 
+```
+export AWS_ACCESS_KEY_ID="your-access-key-id"
+export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
+```
+
+
 
 enable versioning:
 ```
