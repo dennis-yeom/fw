@@ -11,8 +11,8 @@ import (
 
 type S3 interface {
 	ListFiles(ctx context.Context) error
-	GetObjectVersion(ctx context.Context, key string)
-	GetAllObjectVersions(ctx context.Context)
+	GetObjectVersion(ctx context.Context, key string) (string, error)
+	GetAllObjectVersions(ctx context.Context) ([]ObjectInfo, error)
 }
 
 // S3Client encapsulates the S3 client and bucket configuration
