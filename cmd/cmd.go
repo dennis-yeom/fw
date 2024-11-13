@@ -1,10 +1,9 @@
 package cmd
 
 import (
-	"context"
 	"fmt"
 
-	"github.com/dennis-yeom/fw/internal/s3"
+	"github.com/dennis-yeom/fw/internal/demo"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -29,26 +28,25 @@ var (
 			bucket := viper.GetString("s3.bucket")
 			endpoint := viper.GetString("s3.endpoint")
 
-			if bucket == "" || endpoint == "" {
-				return fmt.Errorf("bucket and endpoint must be set in the config file")
+			// check if config filled
+			if bucket == "" {
+				return fmt.Errorf("bucket must be set in the config file")
+			}
+			if endpoint == "" {
+				return fmt.Errorf("endpoint must be set in the config file")
 			}
 
-			// Initialize the S3 client with the bucket and endpoint
-			s3Client, err := s3.NewS3Client(context.TODO(), bucket, endpoint)
+			// Create a new Demo instance with S3 client configuration
+			d, err := demo.New(
+				demo.WithS3Client(bucket, endpoint),
+			)
 			if err != nil {
-				return fmt.Errorf("failed to initialize S3 client: %v", err)
+				return fmt.Errorf("failed to configure Demo with S3 client: %v", err)
 			}
 
-			// Retrieve and display all object versions in the bucket
-			objects, err := s3Client.GetAllObjectVersions(context.TODO())
-			if err != nil {
+			// list and err check
+			if err := d.ListObjectVersions(); err != nil {
 				return fmt.Errorf("failed to list object versions: %v", err)
-			}
-
-			// Display each object and its versions
-			fmt.Println("Objects and their versions in bucket:", bucket)
-			for _, obj := range objects {
-				fmt.Printf(" - %s (version: %s)\n", obj.Key, obj.VersionID)
 			}
 
 			return nil
